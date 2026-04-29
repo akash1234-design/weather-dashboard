@@ -117,7 +117,7 @@ if weather:
     tab1, tab2, tab3, tab4 = st.tabs(["Current", "Forecast", "AQI", "Details"])
 
     with tab1:
-        st.markdown(f"### {city}, {country}")
+        st.markdown(f"### {city}, {weather['sys']['country']}")
         st.markdown(f"**{description}**")
         st.metric("Feels Like", f"{int(feels_like)}°C")
 
