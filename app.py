@@ -1,58 +1,173 @@
 import streamlit as st
 import requests
+import pandas as pd
+import plotly.express as px
+from datetime import datetime, timedelta
 
-st.set_page_config(page_title="Weather Dashboard", page_icon="🌤️", layout="centered")
+st.set_page_config(page_title="Weather Dashboard", page_icon="🌤️", layout="wide")
 
-st.title("🌤️ Weather Dashboard")
-st.markdown("Hansi, Haryana ka live mausam dekho")
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap');
+html, body, [class*="css"] { background-color: #0a0a1a; color: #fff; font-family: 'Inter', sans-serif; }
+.stApp { background-color: #0a0a1a; }
+.hero {
+    background: linear-gradient(135deg, #FF6B00 0%, #FFA500 50%, #1a0a4a 100%);
+    padding: 2.5rem; border-radius: 20px; margin-bottom: 2rem; text-align: center;
+    box-shadow: 0 8px 32px rgba(255,107,0,0.3);
+}
+.hero h1 { font-family:'Bebas Neue',sans-serif; font-size:3.5rem; letter-spacing:4px; color:#fff; margin:0; }
+.hero p { color:#ffcc99; margin-top:0.5rem; }
+.metric-card {
+    background: linear-gradient(135deg,#1a1a2e,#16213e); border:1px solid #FF6B00;
+    border-radius:16px; padding:1.3rem; text-align:center; margin-bottom:1rem;
+    box-shadow:0 4px 15px rgba(255,107,0,0.15);
+}
+.metric-number { font-family:'Bebas Neue',sans-serif; font-size:2.5rem; color:#FF6B00; }
+.metric-label { color:#aaa; font-size:0.8rem; text-transform:uppercase; letter-spacing:2px; }
+.section-title {
+    font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:#FF6B00;
+    letter-spacing:3px; border-left:4px solid #FF6B00; padding-left:12px; margin:1.5rem 0 1rem 0;
+}
+[data-testid="stSidebar"] { background-color:#0d0d1a !important; border-right:1px solid #FF6B00; }
+.stTabs [data-baseweb="tab-list"] { background-color:#1a1a2e; border-radius:10px; }
+.stTabs [aria-selected="true"] { color:#FF6B00 !important; border-bottom:2px solid #FF6B00; }
+.stButton > button {
+    background:linear-gradient(135deg,#FF6B00,#cc4400); color:white; border:none;
+    border-radius:10px; font-weight:700; padding:0.6rem 2rem; transition:all 0.2s;
+}
+.stButton > button:hover { transform:scale(1.03); }
+#MainMenu, footer, header { visibility:hidden; }
+</style>
+""", unsafe_allow_html=True)
 
-# API Key Streamlit Secrets se le rahe hain
-try:
-    API_KEY = st.secrets["API_KEY"]
-except:
-    st.error("Bhai API_KEY set nahi hai 😅 Streamlit Cloud > Settings > Secrets me add karo")
-    st.code('API_KEY = "teri_api_key"', language="toml")
-    st.stop()
+st.markdown("""
+<div class="hero">
+    <h1>🌤️ WEATHER DASHBOARD</h1>
+    <p>Real-Time Weather • Forecasts • Air Quality • Analytics</p>
+</div>
+""", unsafe_allow_html=True)
 
-# City input
-city = st.text_input("City ka naam daalo", "Hansi")
+API_KEY = st.secrets.get("OPENWEATHER_API_KEY", "")
 
-if st.button("Weather Check Karo") or city:
-    if not city:
-        st.warning("City ka naam to daal pehle")
+with st.sidebar:
+    st.markdown("## 🌍 Weather Search")
+    st.markdown("---")
+    city = st.text_input("🏙️ City ka naam likho", "Delhi", label_visibility="collapsed")
+    st.markdown("---")
+    st.info(f"API Key Status: {'✅ Connected' if API_KEY else '⚠️ Add OPENWEATHER_API_KEY to Secrets'}")
+
+def get_weather(city):
+    try:
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200:
+            return resp.json()
+        return None
+    except:
+        return None
+
+def get_forecast(city):
+    try:
+        url = f"https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={API_KEY}&units=metric"
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200:
+            return resp.json()
+        return None
+    except:
+        return None
+
+def get_aqi(lat, lon):
+    try:
+        url = f"https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={API_KEY}"
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200:
+            return resp.json()
+        return None
+    except:
+        return None
+
+weather = get_weather(city) if API_KEY else None
+
+if weather:
+    temp = weather['main']['temp']
+    humidity = weather['main']['humidity']
+    wind_speed = weather['wind']['speed']
+    description = weather['weather'][0]['description'].title()
+    feels_like = weather['main']['feels_like']
+    pressure = weather['main']['pressure']
+    
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.markdown(f'<div class="metric-card"><div class="metric-number">{int(temp)}°C</div><div class="metric-label">Temperature</div></div>', unsafe_allow_html=True)
+    with c2:
+        st.markdown(f'<div class="metric-card"><div class="metric-number">{humidity}%</div><div class="metric-label">Humidity</div></div>', unsafe_allow_html=True)
+    with c3:
+        st.markdown(f'<div class="metric-card"><div class="metric-number">{wind_speed} m/s</div><div class="metric-label">Wind Speed</div></div>', unsafe_allow_html=True)
+    with c4:
+        st.markdown(f'<div class="metric-card"><div class="metric-number">{pressure} mb</div><div class="metric-label">Pressure</div></div>', unsafe_allow_html=True)
+    
+    st.markdown(f"### 🌦️ {city.upper()}, {weather['sys'].get('country', 'IN')}")
+    st.markdown(f"**Condition:** {description} | **Feels Like:** {feels_like}°C")
+    
+    # Tabs
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Current", "📈 7-Day Forecast", "🌍 AQI", "🔍 Details"])
+    
+    with tab1:
+        st.markdown('<div class="section-title">CURRENT WEATHER</div>', unsafe_allow_html=True)
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Sunrise", datetime.fromtimestamp(weather['sys']['sunrise']).strftime("%H:%M"))
+        with col2:
+            st.metric("Sunset", datetime.fromtimestamp(weather['sys']['sunset']).strftime("%H:%M"))
+        with col3:
+            st.metric("Visibility", f"{weather['visibility']/1000:.1f} km")
+    
+    with tab2:
+        st.markdown('<div class="section-title">7-DAY FORECAST</div>', unsafe_allow_html=True)
+        forecast = get_forecast(city)
+        if forecast:
+            times = []
+            temps = []
+            for item in forecast['list'][::8]:
+                times.append(datetime.fromtimestamp(item['dt']).strftime("%m-%d"))
+                temps.append(item['main']['temp'])
+            
+            fig = px.line(x=times, y=temps, markers=True, 
+                         labels={"x": "Date", "y": "Temperature (°C)"},
+                         title=f"{city} - 7 Day Temperature Forecast")
+            fig.update_traces(line_color="#FF6B00", line_width=3)
+            fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", 
+                             paper_bgcolor="rgba(0,0,0,0)",
+                             font=dict(color="white"))
+            st.plotly_chart(fig, use_container_width=True)
+    
+    with tab3:
+        st.markdown('<div class="section-title">AIR QUALITY INDEX</div>', unsafe_allow_html=True)
+        aqi = get_aqi(weather['coord']['lat'], weather['coord']['lon'])
+        if aqi:
+            aqi_val = aqi['list'][0]['main']['aqi']
+            aqi_labels = {1: "Good", 2: "Fair", 3: "Moderate", 4: "Poor", 5: "Very Poor"}
+            st.warning(f"🌍 Air Quality: **{aqi_labels.get(aqi_val, 'Unknown')}** (Index: {aqi_val})")
+            st.info("1=Good | 2=Fair | 3=Moderate | 4=Poor | 5=Very Poor")
+        else:
+            st.info("AQI data available with paid API")
+    
+    with tab4:
+        st.markdown('<div class="section-title">DETAILED INFORMATION</div>', unsafe_allow_html=True)
+        info = pd.DataFrame({
+            "Parameter": ["Temperature", "Feels Like", "Humidity", "Pressure", "Wind Speed", "Cloudiness", "Visibility"],
+            "Value": [f"{temp}°C", f"{feels_like}°C", f"{humidity}%", f"{pressure} mb", 
+                     f"{wind_speed} m/s", f"{weather['clouds']['all']}%", f"{weather['visibility']/1000:.1f} km"]
+        })
+        st.dataframe(info, use_container_width=True, hide_index=True)
+
+else:
+    if not API_KEY:
+        st.error("❌ API Key missing! Add OPENWEATHER_API_KEY to Streamlit Secrets")
+        st.info("Steps:\n1. Jao openweathermap.org\n2. Free API Key lo\n3. Streamlit Cloud → Settings → Secrets mein add karo\n4. Key: `OPENWEATHER_API_KEY`")
     else:
-        try:
-            url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
-            response = requests.get(url)
-            data = response.json()
-
-            if data["cod"] == 200:
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    st.metric("Temperature", f"{round(data['main']['temp'])}°C")
-                with col2:
-                    st.metric("Humidity", f"{data['main']['humidity']}%")
-                with col3:
-                    st.metric("Wind Speed", f"{data['wind']['speed']} m/s")
-                
-                st.subheader(f"{data['name']}, {data['sys']['country']}")
-                st.write(f"**Mausam:** {data['weather'][0]['description'].title()}")
-                st.write(f"**Feels Like:** {round(data['main']['feels_like'])}°C")
-                
-                # Weather icon
-                icon = data['weather'][0]['icon']
-                st.image(f"http://openweathermap.org/img/wn/{icon}@2x.png", width=100)
-                
-            elif data["cod"] == 401:
-                st.error("API Key galat hai ya abhi activate nahi hui. 15-20 min wait karo")
-            elif data["cod"] == 404:
-                st.error("City nahi mili 😅 Spelling check kar")
-            else:
-                st.error(f"Kuch gadbad hai: {data['message']}")
-                
-        except Exception as e:
-            st.error("Network error. Net check kar le")
+        st.warning(f"⚠️ '{city}' city nahi mili. City name check karo!")
 
 st.markdown("---")
-st.caption("Made with Streamlit | Data from OpenWeatherMap")
+st.markdown('<p style="text-align:center;color:#444;font-size:0.8rem;">🌤️ Weather Dashboard | Powered by OpenWeatherMap</p>', unsafe_allow_html=True)
