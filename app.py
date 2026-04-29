@@ -113,56 +113,56 @@ if weather:
 st.subheader("📍 Location Map")
 st.map(pd.DataFrame({'lat': [weather['coord']['lat']], 'lon': [weather['coord']['lon']]}))
 # Tabs
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Current", "📈 7-Day Forecast", "🌍 AQI", "🔍 Details"])
-    
-with tab1:
-        st.markdown('<div class="section-title">CURRENT WEATHER</div>', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Sunrise", datetime.fromtimestamp(weather['sys']['sunrise']).strftime("%H:%M"))
-        with col2:
-            st.metric("Sunset", datetime.fromtimestamp(weather['sys']['sunset']).strftime("%H:%M"))
-        with col3:
-            st.metric("Visibility", f"{weather['visibility']/1000:.1f} km")
-    
-with tab2:
-        st.markdown('<div class="section-title">7-DAY FORECAST</div>', unsafe_allow_html=True)
-        forecast = get_forecast(city)
-        if forecast:
-            times = []
-            temps = []
-            for item in forecast['list'][::8]:
-                times.append(datetime.fromtimestamp(item['dt']).strftime("%m-%d"))
-                temps.append(item['main']['temp'])
-            
-            fig = px.line(x=times, y=temps, markers=True, 
-                         labels={"x": "Date", "y": "Temperature (°C)"},
-                         title=f"{city} - 7 Day Temperature Forecast")
-            fig.update_traces(line_color="#FF6B00", line_width=3)
-            fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", 
-                             paper_bgcolor="rgba(0,0,0,0)",
-                             font=dict(color="white"))
-            st.plotly_chart(fig, use_container_width=True)
-    
-with tab3:
-        st.markdown('<div class="section-title">AIR QUALITY INDEX</div>', unsafe_allow_html=True)
-        aqi = get_aqi(weather['coord']['lat'], weather['coord']['lon'])
-        if aqi:
-            aqi_val = aqi['list'][0]['main']['aqi']
-            aqi_labels = {1: "Good", 2: "Fair", 3: "Moderate", 4: "Poor", 5: "Very Poor"}
-            st.warning(f"🌍 Air Quality: **{aqi_labels.get(aqi_val, 'Unknown')}** (Index: {aqi_val})")
-            st.info("1=Good | 2=Fair | 3=Moderate | 4=Poor | 5=Very Poor")
-        else:
-            st.info("AQI data available with paid API")
-    
-with tab4:
-        st.markdown('<div class="section-title">DETAILED INFORMATION</div>', unsafe_allow_html=True)
-        info = pd.DataFrame({
-            "Parameter": ["Temperature", "Feels Like", "Humidity", "Pressure", "Wind Speed", "Cloudiness", "Visibility"],
-            "Value": [f"{temp}°C", f"{feels_like}°C", f"{humidity}%", f"{pressure} mb", 
-                     f"{wind_speed} m/s", f"{weather['clouds']['all']}%", f"{weather['visibility']/1000:.1f} km"]
-        })
-        st.dataframe(info, use_container_width=True, hide_index=True)
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Current", "📈 7-Day Forecast", "🌍 AQI", "🔍 Details"])
+        
+    with tab1:
+            st.markdown('<div class="section-title">CURRENT WEATHER</div>', unsafe_allow_html=True)
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Sunrise", datetime.fromtimestamp(weather['sys']['sunrise']).strftime("%H:%M"))
+            with col2:
+                st.metric("Sunset", datetime.fromtimestamp(weather['sys']['sunset']).strftime("%H:%M"))
+            with col3:
+                st.metric("Visibility", f"{weather['visibility']/1000:.1f} km")
+        
+    with tab2:
+            st.markdown('<div class="section-title">7-DAY FORECAST</div>', unsafe_allow_html=True)
+            forecast = get_forecast(city)
+            if forecast:
+                times = []
+                temps = []
+                for item in forecast['list'][::8]:
+                    times.append(datetime.fromtimestamp(item['dt']).strftime("%m-%d"))
+                    temps.append(item['main']['temp'])
+                
+                fig = px.line(x=times, y=temps, markers=True, 
+                             labels={"x": "Date", "y": "Temperature (°C)"},
+                             title=f"{city} - 7 Day Temperature Forecast")
+                fig.update_traces(line_color="#FF6B00", line_width=3)
+                fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", 
+                                 paper_bgcolor="rgba(0,0,0,0)",
+                                 font=dict(color="white"))
+                st.plotly_chart(fig, use_container_width=True)
+        
+    with tab3:
+            st.markdown('<div class="section-title">AIR QUALITY INDEX</div>', unsafe_allow_html=True)
+            aqi = get_aqi(weather['coord']['lat'], weather['coord']['lon'])
+            if aqi:
+                aqi_val = aqi['list'][0]['main']['aqi']
+                aqi_labels = {1: "Good", 2: "Fair", 3: "Moderate", 4: "Poor", 5: "Very Poor"}
+                st.warning(f"🌍 Air Quality: **{aqi_labels.get(aqi_val, 'Unknown')}** (Index: {aqi_val})")
+                st.info("1=Good | 2=Fair | 3=Moderate | 4=Poor | 5=Very Poor")
+            else:
+                st.info("AQI data available with paid API")
+        
+    with tab4:
+            st.markdown('<div class="section-title">DETAILED INFORMATION</div>', unsafe_allow_html=True)
+            info = pd.DataFrame({
+                "Parameter": ["Temperature", "Feels Like", "Humidity", "Pressure", "Wind Speed", "Cloudiness", "Visibility"],
+                "Value": [f"{temp}°C", f"{feels_like}°C", f"{humidity}%", f"{pressure} mb", 
+                         f"{wind_speed} m/s", f"{weather['clouds']['all']}%", f"{weather['visibility']/1000:.1f} km"]
+            })
+            st.dataframe(info, use_container_width=True, hide_index=True)
 
 else:
     if not API_KEY:
