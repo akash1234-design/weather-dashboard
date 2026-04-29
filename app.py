@@ -125,7 +125,7 @@ with tab1:
         with col3:
             st.metric("Visibility", f"{weather['visibility']/1000:.1f} km")
     
-    with tab2:
+with tab2:
         st.markdown('<div class="section-title">7-DAY FORECAST</div>', unsafe_allow_html=True)
         forecast = get_forecast(city)
         if forecast:
