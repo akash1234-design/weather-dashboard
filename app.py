@@ -144,7 +144,7 @@ with tab2:
                              font=dict(color="white"))
             st.plotly_chart(fig, use_container_width=True)
     
-    with tab3:
+with tab3:
         st.markdown('<div class="section-title">AIR QUALITY INDEX</div>', unsafe_allow_html=True)
         aqi = get_aqi(weather['coord']['lat'], weather['coord']['lon'])
         if aqi:
@@ -155,7 +155,7 @@ with tab2:
         else:
             st.info("AQI data available with paid API")
     
-    with tab4:
+with tab4:
         st.markdown('<div class="section-title">DETAILED INFORMATION</div>', unsafe_allow_html=True)
         info = pd.DataFrame({
             "Parameter": ["Temperature", "Feels Like", "Humidity", "Pressure", "Wind Speed", "Cloudiness", "Visibility"],
