@@ -109,9 +109,9 @@ if weather:
     
     st.markdown(f"### 🌦️ {city.upper()}, {weather['sys'].get('country', 'IN')}")
     st.markdown(f"**Condition:** {description} | **Feels Like:** {feels_like}°C")
-        st.markdown("---")
-    st.subheader("📍 Location Map")
-    st.map(pd.DataFrame({'lat': [weather['coord']['lat']], 'lon': [weather['coord']['lon']]}))
+    st.markdown("---")
+st.subheader("📍 Location Map")
+st.map(pd.DataFrame({'lat': [weather['coord']['lat']], 'lon': [weather['coord']['lon']]}))
     # Tabs
     tab1, tab2, tab3, tab4 = st.tabs(["📊 Current", "📈 7-Day Forecast", "🌍 AQI", "🔍 Details"])
     
