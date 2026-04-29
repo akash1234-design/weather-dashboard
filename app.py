@@ -10,7 +10,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap');
 html, body, [class*="css"] { background-color: #0a0a1a; color: #fff; font-family: 'Inter', sans-serif; }
-.stApp { background-color: #0a0a1a; }
+.stApp { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 .hero {
     background: linear-gradient(135deg, #FF6B00 0%, #FFA500 50%, #1a0a4a 100%);
     padding: 2.5rem; border-radius: 20px; margin-bottom: 2rem; text-align: center;
@@ -109,7 +109,9 @@ if weather:
     
     st.markdown(f"### 🌦️ {city.upper()}, {weather['sys'].get('country', 'IN')}")
     st.markdown(f"**Condition:** {description} | **Feels Like:** {feels_like}°C")
-    
+        st.markdown("---")
+    st.subheader("📍 Location Map")
+    st.map(pd.DataFrame({'lat': [weather['coord']['lat']], 'lon': [weather['coord']['lon']]}))
     # Tabs
     tab1, tab2, tab3, tab4 = st.tabs(["📊 Current", "📈 7-Day Forecast", "🌍 AQI", "🔍 Details"])
     
