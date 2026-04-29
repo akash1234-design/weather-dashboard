@@ -167,7 +167,7 @@ with tab4:
 else:
     if not API_KEY:
         st.error("❌ API Key missing! Add OPENWEATHER_API_KEY to Streamlit Secrets")
-        st.info("Steps:\n1. Jao openweathermap.org\n2. Free API Key lo\n3. Streamlit Cloud → Settings → Secrets mein add karo\n4. Key: `OPENWEATHER_API_KEY`")
+        st.info("Steps:\n1. Jao openweathermap.org\n2. Free API Key lo\n3. Streamlit Cloud → Settings → Secrets")
     else:
         st.warning(f"⚠️ '{city}' city nahi mili. City name check karo!")
 
