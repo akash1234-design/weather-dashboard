@@ -112,8 +112,8 @@ if weather:
     st.markdown("---")
 st.subheader("📍 Location Map")
 st.map(pd.DataFrame({'lat': [weather['coord']['lat']], 'lon': [weather['coord']['lon']]}))
-    # Tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Current", "📈 7-Day Forecast", "🌍 AQI", "🔍 Details"])
+# Tabs
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Current", "📈 7-Day Forecast", "🌍 AQI", "🔍 Details"])
     
     with tab1:
         st.markdown('<div class="section-title">CURRENT WEATHER</div>', unsafe_allow_html=True)
